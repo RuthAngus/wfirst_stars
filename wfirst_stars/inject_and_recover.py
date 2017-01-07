@@ -5,7 +5,7 @@
 
 from __future__ import print_function
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 import sys
@@ -72,7 +72,7 @@ def LSST_sig(m):
     return sigs[np.abs(mags - m) == np.abs(mags-m).min()][0]
 
 
-def pgram(N, years, fname, RESULTS_DIR):
+def pgram(N, years, fname, RESULTS_DIR, plot=False):
     ps = np.linspace(2, 100, 1000)  # the period array (in days)
 
     print("Computing periodograms")
@@ -87,6 +87,10 @@ def pgram(N, years, fname, RESULTS_DIR):
         xt, yt, yerrt = x[m], y[m], yerr[m][m]
         model = LombScargle().fit(xt, yt, yerrt)  # compute pgram
         pgram = model.periodogram(ps)
+        if plot:
+            plt.clf()
+            plt.plot(ps, pgram)
+            plt.savefig(os.path.join(RESULTS_DIR, "{}_pgram".format(int(id))))
 
         # find peaks
         peaks = np.array([j for j in range(1, len(ps)-1) if pgram[j-1] <
@@ -172,6 +176,7 @@ def inject(fname, N, DATA_DIR="data", SIM_DIR="simulations",
                         make_arrays(d55, 5500, ps, teff, rmag),
                         make_arrays(d60, 6000, ps, teff, rmag)),
                        axis=1)
+    logamps += 5  # FIXME: delete this line.
     amps = 10**logamps  # parts per million
     noises_mag = np.array([LSST_sig(mag) for mag in rmags])
     noises_ppm = (1 - 10**(-noises_mag/2.5)) * 1e6
@@ -182,8 +187,8 @@ def inject(fname, N, DATA_DIR="data", SIM_DIR="simulations",
         os.makedirs(fname)
     path = os.path.join(SIM_DIR, "{0}".format(fname))  # where to save the lcs
     print(len(pers), "stars to simulate")
-    [simulate_LSST(i, pers[i], amps[i], path, noises_ppm[i]) for i in
-     range(len(pers))]
+    [simulate_LSST(i, pers[i], amps[i], path, noises_ppm[i], plot=True) for i
+     in range(len(pers))]
 
     # save the true values
     ids = np.arange(len(pers))
@@ -214,7 +219,7 @@ def rec(fname, SIM_DIR="simulations", RESULTS_DIR="results"):
     N = len(pers)
     years = [1, 5, 10]
     for year in years:
-        periods = pgram(N, year, fname, RESULTS_DIR)
+        periods = pgram(N, year, fname, RESULTS_DIR, plot=True)
         data = np.vstack((pers, periods, np.log(amps), amps))
         if not os.path.exists(RESULTS_DIR):
             os.makedirs(RESULTS_DIR)
@@ -228,5 +233,5 @@ def rec(fname, SIM_DIR="simulations", RESULTS_DIR="results"):
 if __name__ == "__main__":
     fname = "l{0}b{1}".format(sys.argv[1], sys.argv[2])
 
-    # inj(fname)
-    rec(fname)
+    inj(fname)
+    # rec(fname)
