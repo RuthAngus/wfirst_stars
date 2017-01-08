@@ -228,5 +228,5 @@ def rec(fname, SIM_DIR="simulations", RESULTS_DIR="results"):
 if __name__ == "__main__":
     fname = "l{0}b{1}".format(sys.argv[1], sys.argv[2])
 
-    # inj(fname)
-    rec(fname)
+    inj(fname)
+    # rec(fname)
