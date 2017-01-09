@@ -8,6 +8,10 @@ import glob
 
 import os
 
+# plt.rcParams.update({'axes.labelsize': 18, 'font.size': 10,
+#                      'legend.fontsize': 15, 'xtick.labelsize': 18,
+#                      'ytick.labelsize': 18, 'text.usetex': True})
+
 
 def count_spectral_type(df):
     data = np.array(df)
@@ -29,32 +33,46 @@ def load_file(fname):
     return df
 
 
-def count_stars(files):
-    """ how many stars of each spectral type? """
-    type_count = np.zeros((len(files), 4))  # 4 spectral types
+def join_stars(files):
     table = load_file(files[0])
     for i, file in enumerate(files):  # for each field of view
         print(i, "of", len(files))
         df = load_file(file)
-        type_count[i, :] = count_spectral_type(df)
         if i > 0:
             table = pd.concat((table, df))
-    print(np.sum(type_count, axis=0))
     table.to_csv("data.csv")
     return table
 
 
-def histograms():
-    df = pd.read_csv("data.csv")
+def histograms(df):
+
+    teffs = df.Typ.values
+    distances = df.Dist.values
+    logg = df.logg.values
+
+    m = (3000 < teffs) * (teffs < 7000)
     plt.clf()
-    plt.hist(df.Typ)
+    print(len(teffs[m]))
+    plt.hist(teffs[m], 10)
+    plt.xlim(7000, 3000)
+    # plt.xlabel("$\mathrm{T}_{\mathrm{eff}}$")
     plt.xlabel("Teff")
     plt.savefig("teff_hist.pdf")
 
+    m = (3000 < teffs) * (teffs < 7000) * (logg < 4.)
+    plt.clf()
+    print(len(distances[m]))
+    plt.hist(distances[m], 20, histtype="stepfilled", color="w")
+    # plt.xlabel("$\mathrm{Distance~(Kpc)}$")
+    plt.xlabel("Distance (Kpc)")
+    plt.savefig("dist_hist.pdf")
+
 
 if __name__ == "__main__":
-    p1 = "/Users/ruthangus/projects/wfirst_stars/wfirst_stars/data"
-    path = os.path.join(p1, "besanconWeighted/*.weighted")
-    files = glob.glob(path)
-    count_stars(files)
-    # histograms(df)
+    # p1 = "/Users/ruthangus/projects/wfirst_stars/wfirst_stars/data"
+    # path = os.path.join(p1, "besanconWeighted/*.weighted")
+    # df = join_stars(glob.glob(path))
+
+    df = pd.read_csv("data.csv")
+    histograms(df)
+    # count_spectral_type(df)
