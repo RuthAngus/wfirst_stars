@@ -49,15 +49,15 @@ if __name__ == "__main__":
 
     # Total relative flux in the Wfirst main, IR bandpass for 10% spot
     # coverage.
-    W_flux = relative_fluxes(W149_l, W149_u, 5000, 2000, .9)
+    W_flux = relative_fluxes(W149_l, W149_u, 5000, 2000, .98)
     print(1 - W_flux)
 
     # Total relative flux in the Wfirst blue bandpass
-    Z_flux = relative_fluxes(Z087_l, Z087_u, 5000, 2000, .9)
+    Z_flux = relative_fluxes(Z087_l, Z087_u, 5000, 2000, .98)
     print(1 - Z_flux)
 
     # Total relative flux in the Kepler bandpass
-    K_flux = relative_fluxes(K_l, K_u, 5000, 2000, .9)
+    K_flux = relative_fluxes(K_l, K_u, 5000, 2000, .98)
     print(1 - K_flux)
 
     print((1 - W_flux)/(1 - K_flux)*100)

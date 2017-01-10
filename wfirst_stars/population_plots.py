@@ -50,11 +50,11 @@ def histograms(df):
     distances = df.Dist.values
     logg = df.logg.values
 
-    m = (3000 < teffs) * (teffs < 7000)
+    m = (2000 < teffs) * (teffs < 7000)
     plt.clf()
     print(len(teffs[m]))
     plt.hist(teffs[m], 10)
-    plt.xlim(7000, 3000)
+    plt.xlim(7000, 2000)
     # plt.xlabel("$\mathrm{T}_{\mathrm{eff}}$")
     plt.xlabel("Teff")
     plt.savefig("teff_hist.pdf")
